@@ -46,7 +46,7 @@ def encoder_():
     return {"encoded": video_url}
 
 
-@app.route("/<int(fixed_digits=13):video_id>")
+@app.route("/bt/<string:video_id>")
 def brightcove(video_id):
     try:
         video_id = b64_to_str(video_id)
@@ -85,7 +85,7 @@ def brightcove(video_id):
     )
 
 
-@app.route("/<string(length=8):video_id>")
+@app.route("/jw/<string:video_id>")
 def jw(video_id):
     try:
         video_id = b64_to_str(video_id)
