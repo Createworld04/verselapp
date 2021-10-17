@@ -35,14 +35,9 @@ jw_url = "https://cdn.jwplayer.com/v2/media"
 
 app = Flask(__name__)
 
-@app.route("/encode")
-def encoder_():
-    try:
-        video_url = request.args['id']
-    except Exception as e:
-        edata = "Please parse ?id= when calling the api"
-        return edata
-    video_url = str_to_b64(video_url)
+@app.route("/<string:video_id>")
+def encoder_(video_id):
+    video_url = str_to_b64(video_id)
     return {"encoded": video_url}
 
 
