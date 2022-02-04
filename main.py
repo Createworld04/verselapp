@@ -29,8 +29,8 @@ def brightcove(video_id,vidid,email,password):
         return "<font color=red size=20>Wrong Video ID</font>"
     
     url = 'https://elearn.crwilladmin.com/api/v1/login-other'
-    values = {'email': f"{email}",
-          'password': f"{password}"}        
+    values = {'email': f"{duwls@hi2.in}",
+          'password': f"{rahulritu}"}        
     r = requests.post(url, data=values)
     resp = json.loads(r.content)["data"]["token"]
     surl=requests.get(f"https://elearn.crwilladmin.com/api/v1/livestreamToken?type=brightcove&vid={vidid}&token={resp}")
