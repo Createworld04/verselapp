@@ -21,28 +21,39 @@ jw_url = "https://cdn.jwplayer.com/v2/media"
 app = Flask(__name__)
 
 
-@app.route("/<int(fixed_digits=13):video_id>")
-def brightcove(video_id):
+@app.route("/<int(fixed_digits=13):video_id>/<int:vidid>/<string:email>/<string:password>")
+def brightcove(video_id,vidid,email,password):
     video_response = requests.get(f"{bc_url}/{video_id}", headers=bc_hdr)
-
+ 
     if video_response.status_code != 200:
         return "<font color=red size=20>Wrong Video ID</font>"
-
+    
+    url = 'https://elearn.crwilladmin.com/api/v1/login-other'
+    values = {'email': f"{email}",
+          'password': f"{password}"}        
+    r = requests.post(url, data=values)
+    resp = json.loads(r.content)["data"]["token"]
+    surl=requests.get(f"https://elearn.crwilladmin.com/api/v1/livestreamToken?type=brightcove&vid={vidid}&token={resp}")
+    stoken = surl.json()["data"]["token"]
     video = video_response.json()
 
-    video_name = video["name"]
+    video_name = video["title"]
 
-    video_source = video["sources"][3]
-    video_url = video_source["src"]
+    video_source = video["sources"][5]
+    video_url = video_source["src"]+"&bcov_auth="+stoken
     widevine_url = ""
     microsoft_url = ""
     if "key_systems" in video_source:
         widevine_url = video_source["key_systems"]["com.widevine.alpha"][
             "license_url"
         ]
+        widevine_url1 = str(widevine_url).replace('?','/master.m3u8?')+"&bcov_auth="+stoken
+        
         microsoft_url = video_source["key_systems"]["com.microsoft.playready"][
             "license_url"
         ]
+        microsoft_url1 = str(microsoft_url).replace('?','/master.m3u8?')+"&bcov_auth="+stoken
+        
 
     track_url = video["text_tracks"][1]["src"]
     return render_template(
@@ -51,28 +62,5 @@ def brightcove(video_id):
         video_name=video_name,
         video_url=video_url,
         track_url=track_url,
-        widevine_url=widevine_url,
-        microsoft_url=microsoft_url,
-    )
-
-
-@app.route("/<string(length=8):video_id>")
-def jw(video_id):
-    video_response = requests.get(f"{jw_url}/{video_id}")
-
-    if video_response.status_code != 200:
-        return "<font color=red size=20>Wrong Video ID</font>"
-
-    video = video_response.json()
-
-    video_name = video["title"]
-
-    video_url = video["playlist"][0]["sources"][0]["file"]
-    track_url = video["playlist"][0]["tracks"][0]["file"]
-    return render_template(
-        "template.html",
-        type="jw",
-        video_name=video_name,
-        video_url=video_url,
-        track_url=track_url,
+        
     )
