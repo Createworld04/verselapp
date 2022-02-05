@@ -37,7 +37,7 @@ def brightcove(video_id,vidid,email,password):
     stoken = surl.json()["data"]["token"]
     video = video_response.json()
 
-    video_name = video["name"]
+    video_name = video["title"]
 
     video_source = video["sources"][5]
     video_url = video_source["src"]+"&bcov_auth="+stoken
